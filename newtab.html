@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ShortcutX</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <div class="background-layer" aria-hidden="true"></div>
+
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="profile-area">
+          <button class="brand" id="profileButton" type="button" aria-label="Edit profile" aria-haspopup="dialog" aria-expanded="false">
+            <span class="brand-mark" id="profileAvatar" aria-hidden="true">X</span>
+            <span>
+              <strong id="brandName">ShortcutX</strong>
+              <small id="shortcutCount">0 shortcuts</small>
+            </span>
+          </button>
+
+          <div class="profile-popover" id="profilePopover" role="dialog" aria-label="Profile" hidden>
+            <form class="profile-form" id="profileForm">
+              <strong>Profile</strong>
+              <label class="field">
+                <span>Username</span>
+                <input id="profileUsernameInput" type="text" maxlength="28" autocomplete="name" placeholder="Username">
+              </label>
+              <div class="profile-preview">
+                <span class="profile-avatar-large" id="profilePreviewAvatar" aria-hidden="true">X</span>
+                <span id="profileImageStatus">Letter avatar</span>
+              </div>
+              <div class="panel-actions stacked">
+                <button class="primary-button" type="submit">Save profile</button>
+                <button class="secondary-button" id="uploadProfileImageButton" type="button">Upload image</button>
+                <button class="secondary-button" id="clearProfileImageButton" type="button">Remove image</button>
+                <input id="profileImageFileInput" type="file" accept="image/png,image/jpeg,image/webp,image/gif" hidden>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <nav class="top-links" id="topLinks" aria-label="Quick links">
+            <a id="topLinkOne" href="https://mail.google.com">Gmail</a>
+            <a id="topLinkTwo" href="https://images.google.com">Images</a>
+          </nav>
+
+          <nav class="toolbar" aria-label="Page tools">
+            <button class="icon-button" id="addShortcutButton" type="button" title="Add shortcut" aria-label="Add shortcut"></button>
+            <button class="icon-button" id="openSettingsButton" type="button" title="Customize" aria-label="Customize"></button>
+          </nav>
+        </div>
+      </header>
+
+      <main class="main-view">
+        <section class="search-area" aria-label="Search">
+          <div class="time-block" id="timeBlock">
+            <time id="clockText">00:00</time>
+            <span id="dateText">Today</span>
+          </div>
+
+          <form class="search-box" id="searchForm" autocomplete="off">
+            <label class="visually-hidden" for="searchInput">Search web or shortcuts</label>
+            <span class="search-icon" id="searchIcon" aria-hidden="true"></span>
+            <input id="searchInput" name="q" type="search" placeholder="Search the web">
+            <label class="visually-hidden" for="engineSelect">Search engine</label>
+            <select id="engineSelect" name="engine" title="Search engine" aria-label="Search engine">
+              <option value="google">Google</option>
+              <option value="duckduckgo">DuckDuckGo</option>
+              <option value="bing">Bing</option>
+              <option value="youtube">YouTube</option>
+              <option value="github">GitHub</option>
+            </select>
+          </form>
+        </section>
+
+        <section class="shortcut-section" aria-label="Shortcuts">
+          <div class="section-bar" id="sectionBar">
+            <div class="group-tabs" id="groupTabs" role="tablist" aria-label="Shortcut groups"></div>
+            <div class="section-actions">
+              <button class="text-button" id="sortButton" type="button">Sort</button>
+            </div>
+          </div>
+
+          <div class="shortcut-grid" id="shortcutGrid" aria-live="polite"></div>
+          <div class="empty-state" id="emptyState" hidden>
+            <strong>No shortcuts here</strong>
+            <span>Add one or switch groups.</span>
+            <button class="primary-button" id="emptyAddButton" type="button">Add shortcut</button>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div class="panel-scrim" id="panelScrim" hidden></div>
+    <aside class="side-panel" id="sidePanel" aria-hidden="true" aria-label="ShortcutX settings">
+      <div class="panel-header">
+        <div>
+          <strong id="panelTitle">Shortcut</strong>
+          <span id="panelSubtitle">Add or edit one tile.</span>
+        </div>
+        <button class="icon-button" id="closePanelButton" type="button" title="Close" aria-label="Close"></button>
+      </div>
+
+      <div class="panel-tabs" role="tablist" aria-label="Editor tabs">
+        <button class="panel-tab is-active" id="shortcutTab" type="button" data-panel-tab="shortcut">Shortcut</button>
+        <button class="panel-tab" id="customizeTab" type="button" data-panel-tab="customize">Customize</button>
+        <button class="panel-tab" id="backupTab" type="button" data-panel-tab="backup">Backup</button>
+      </div>
+
+      <div class="panel-body">
+        <form class="panel-view is-active" id="shortcutForm" data-panel-view="shortcut">
+          <input type="hidden" id="shortcutId">
+
+          <label class="field">
+            <span>Title</span>
+            <input id="titleInput" type="text" maxlength="42" placeholder="GitHub">
+          </label>
+
+          <label class="field">
+            <span>URL</span>
+            <input id="urlInput" type="text" inputmode="url" placeholder="github.com">
+          </label>
+
+          <div class="field-row">
+            <label class="field">
+              <span>Group</span>
+              <input id="groupInput" type="text" maxlength="28" placeholder="Work" list="groupOptions">
+              <datalist id="groupOptions"></datalist>
+            </label>
+
+            <label class="field">
+              <span>Icon</span>
+              <select id="iconTypeInput">
+                <option value="auto">Favicon</option>
+                <option value="text">Text</option>
+                <option value="image">Image URL</option>
+              </select>
+            </label>
+          </div>
+
+          <label class="field" id="iconTextField">
+            <span>Icon text</span>
+            <input id="iconInput" type="text" maxlength="4" placeholder="GH">
+          </label>
+
+          <div class="field" id="iconImageField" hidden>
+            <span>Icon image URL</span>
+            <input id="iconImageInput" type="text" inputmode="url" placeholder="https://...">
+            <button class="secondary-button" id="uploadIconImageButton" type="button">Upload local icon image</button>
+            <button class="secondary-button" id="clearIconImageButton" type="button">Clear icon image</button>
+            <input id="iconImageFileInput" type="file" accept="image/png,image/jpeg,image/webp,image/gif" hidden>
+          </div>
+
+          <div class="field-row">
+            <label class="field">
+              <span>Color</span>
+              <div class="color-control shortcut-form-color-control">
+                <input id="colorInput" type="color" value="#3b82f6">
+                <output id="colorNameOutput" for="colorInput">Blue</output>
+                <button class="secondary-button color-default-button" id="defaultColorButton" type="button">Default</button>
+              </div>
+            </label>
+
+            <label class="field">
+              <span>Open</span>
+              <select id="openModeInput">
+                <option value="same" selected>Same tab</option>
+                <option value="new">New tab</option>
+              </select>
+            </label>
+          </div>
+
+          <label class="field">
+            <span>Note</span>
+            <textarea id="noteInput" maxlength="96" rows="3" placeholder="Optional"></textarea>
+          </label>
+
+          <div class="panel-actions">
+            <button class="primary-button" id="saveShortcutButton" type="submit">Save shortcut</button>
+            <button class="danger-button" id="deleteShortcutButton" type="button" hidden>Delete</button>
+          </div>
+        </form>
+
+        <form class="panel-view" id="customizeForm" data-panel-view="customize">
+          <div class="settings-section">
+            <strong>Layout</strong>
+            <div class="field-row range-row">
+              <label class="field">
+                <span>Columns</span>
+                <input id="columnsInput" type="range" min="4" max="24" step="1">
+              </label>
+              <output class="range-output" id="columnsOutput">18</output>
+            </div>
+
+            <div class="field-row range-row">
+              <label class="field">
+                <span>Icon size</span>
+                <input id="iconSizeInput" type="range" min="44" max="86" step="2">
+              </label>
+              <output class="range-output" id="iconSizeOutput">62</output>
+            </div>
+
+            <div class="field-row range-row">
+              <label class="field">
+                <span>Spacing</span>
+                <input id="gridGapInput" type="range" min="8" max="34" step="2">
+              </label>
+              <output class="range-output" id="gridGapOutput">18</output>
+            </div>
+
+            <div class="field-row">
+              <label class="field">
+                <span>Shape</span>
+                <select id="tileShapeInput">
+                  <option value="circle">Circle</option>
+                  <option value="rounded">Rounded</option>
+                  <option value="square">Square</option>
+                </select>
+              </label>
+
+              <label class="field">
+                <span>Position</span>
+                <select id="layoutInput">
+                  <option value="center">Center</option>
+                  <option value="top">Top</option>
+                </select>
+              </label>
+            </div>
+
+            <label class="switch-field">
+              <input id="labelsInput" type="checkbox">
+              <span>Show labels</span>
+            </label>
+
+            <label class="switch-field">
+              <input id="clockInput" type="checkbox">
+              <span>Show clock</span>
+            </label>
+
+            <label class="switch-field">
+              <input id="showGroupsInput" type="checkbox">
+              <span>Show groups</span>
+            </label>
+          </div>
+
+          <div class="settings-section">
+            <strong>Groups</strong>
+            <div class="field-row group-command-row">
+              <label class="field">
+                <span>New group</span>
+                <input id="groupNameInput" type="text" maxlength="28" placeholder="Work">
+              </label>
+              <button class="secondary-button" id="addGroupButton" type="button">Add</button>
+            </div>
+
+            <label class="field">
+              <span>Manage group</span>
+              <select id="groupManageSelect"></select>
+            </label>
+
+            <div class="field-row group-command-row">
+              <label class="field">
+                <span>Rename to</span>
+                <input id="renameGroupInput" type="text" maxlength="28" placeholder="New name">
+              </label>
+              <button class="secondary-button" id="renameGroupButton" type="button">Rename</button>
+            </div>
+
+            <button class="danger-button" id="deleteGroupButton" type="button">Delete selected group</button>
+          </div>
+
+          <div class="settings-section">
+            <strong>Appearance</strong>
+            <label class="field">
+              <span>Theme</span>
+              <select id="themeInput">
+                <option value="system">System</option>
+                <option value="light">Light</option>
+                <option value="dark">Dark</option>
+              </select>
+            </label>
+
+            <div class="field-row">
+              <label class="field">
+                <span>Accent</span>
+                <div class="color-control">
+                  <input id="accentInput" type="color">
+                  <output id="accentNameOutput" for="accentInput">White</output>
+                </div>
+              </label>
+              <label class="field">
+                <span>Background</span>
+                <div class="color-control background-color-control">
+                  <input id="backgroundInput" type="color">
+                  <output id="backgroundNameOutput" for="backgroundInput">Black</output>
+                </div>
+              </label>
+            </div>
+
+            <div class="background-presets" id="backgroundPresets" aria-label="Background presets">
+              <button class="background-preset" type="button" data-background="#000000" data-accent="#f8fafc" title="Black" aria-label="Use black background"></button>
+              <button class="background-preset" type="button" data-background="#151515" data-accent="#e5e7eb" title="Graphite" aria-label="Use graphite background"></button>
+              <button class="background-preset" type="button" data-background="#0f172a" data-accent="#38bdf8" title="Ocean" aria-label="Use ocean background"></button>
+              <button class="background-preset" type="button" data-background="#1f2937" data-accent="#34d399" title="Forest" aria-label="Use forest background"></button>
+              <button class="background-preset" type="button" data-background="#2d1b69" data-accent="#fbbf24" title="Violet" aria-label="Use violet background"></button>
+            </div>
+
+            <label class="field">
+              <span>Image URL</span>
+              <input id="backgroundImageInput" type="text" inputmode="url" placeholder="https://...">
+            </label>
+
+            <div class="panel-actions stacked">
+              <button class="secondary-button" id="uploadBackgroundButton" type="button">Upload local background image</button>
+              <button class="secondary-button" id="clearBackgroundButton" type="button">Clear image</button>
+              <input id="backgroundFileInput" type="file" accept="image/png,image/jpeg,image/webp,image/gif" hidden>
+            </div>
+
+            <label class="switch-field">
+              <input id="imageOverlayInput" type="checkbox">
+              <span>Dim image</span>
+            </label>
+          </div>
+
+          <div class="settings-section">
+            <strong>Search</strong>
+            <label class="field">
+              <span>Default engine</span>
+              <select id="defaultEngineInput">
+                <option value="google">Google</option>
+                <option value="duckduckgo">DuckDuckGo</option>
+                <option value="bing">Bing</option>
+                <option value="youtube">YouTube</option>
+                <option value="github">GitHub</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="settings-section">
+            <strong>Top links</strong>
+            <label class="switch-field">
+              <input id="topLinksInput" type="checkbox">
+              <span>Show top links</span>
+            </label>
+
+            <div class="field-row">
+              <label class="field">
+                <span>First label</span>
+                <input id="topLinkOneLabelInput" type="text" maxlength="18" placeholder="Gmail">
+              </label>
+              <label class="field">
+                <span>First URL</span>
+                <input id="topLinkOneUrlInput" type="text" inputmode="url" placeholder="mail.google.com">
+              </label>
+            </div>
+
+            <div class="field-row">
+              <label class="field">
+                <span>Second label</span>
+                <input id="topLinkTwoLabelInput" type="text" maxlength="18" placeholder="Images">
+              </label>
+              <label class="field">
+                <span>Second URL</span>
+                <input id="topLinkTwoUrlInput" type="text" inputmode="url" placeholder="images.google.com">
+              </label>
+            </div>
+          </div>
+        </form>
+
+        <div class="panel-view" id="backupView" data-panel-view="backup">
+          <div class="settings-section">
+            <strong>Data</strong>
+            <div class="panel-actions stacked">
+              <button class="secondary-button" id="exportButton" type="button">Export JSON</button>
+              <button class="secondary-button" id="importButton" type="button">Import JSON</button>
+              <button class="danger-button" id="resetButton" type="button">Reset all</button>
+            </div>
+            <input id="importFileInput" type="file" accept="application/json,.json" hidden>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
