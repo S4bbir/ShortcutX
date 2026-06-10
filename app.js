@@ -103,6 +103,7 @@
       layout: "center",
       showLabels: true,
       showClock: false,
+      clockFormat: "12",
       showGroups: false,
       showTopLinks: true,
       defaultEngine: "google",
@@ -219,7 +220,7 @@
     syncFormControls();
     renderAll();
     tickClock();
-    setInterval(tickClock, 30000);
+    setInterval(tickClock, 60000);
 
     if (typeof window.matchMedia === "function") {
       systemThemeQuery = window.matchMedia("(prefers-color-scheme: dark)");
@@ -295,6 +296,8 @@
       "layoutInput",
       "labelsInput",
       "clockInput",
+      "clockFormatRow",
+      "clockFormatInput",
       "showGroupsInput",
       "groupNameInput",
       "addGroupButton",
@@ -495,6 +498,7 @@
     settings.defaultEngine = searchEngines[settings.defaultEngine] ? settings.defaultEngine : defaultState.settings.defaultEngine;
     settings.showLabels = settings.showLabels !== false;
     settings.showClock = Boolean(settings.showClock);
+    settings.clockFormat = settings.clockFormat === "24" ? "24" : "12";
     settings.showGroups = Boolean(settings.showGroups);
     settings.showTopLinks = settings.showTopLinks !== false;
     settings.topLinks = normalizeTopLinks(rawSettings.topLinks);
@@ -608,6 +612,7 @@
 
     dom.engineSelect.value = settings.defaultEngine;
     dom.timeBlock.hidden = !settings.showClock;
+    dom.clockFormatRow.hidden = !settings.showClock;
     dom.topLinks.hidden = !settings.showTopLinks;
     updateBackgroundPresetState();
     renderTopLinks();
@@ -625,6 +630,7 @@
     dom.layoutInput.value = settings.layout;
     dom.labelsInput.checked = settings.showLabels;
     dom.clockInput.checked = settings.showClock;
+    dom.clockFormatInput.value = settings.clockFormat;
     dom.showGroupsInput.checked = settings.showGroups;
     dom.themeInput.value = settings.theme;
     dom.accentInput.value = settings.accent;
@@ -1427,7 +1433,9 @@
     state.settings.layout = dom.layoutInput.value;
     state.settings.showLabels = dom.labelsInput.checked;
     state.settings.showClock = dom.clockInput.checked;
+    state.settings.clockFormat = dom.clockFormatInput.value;
     state.settings.showGroups = dom.showGroupsInput.checked;
+    tickClock();
     state.settings.theme = dom.themeInput.value;
     state.settings.accent = safeColor(dom.accentInput.value, defaultState.settings.accent);
     state.settings.background = safeColor(dom.backgroundInput.value, defaultState.settings.background);
@@ -1612,11 +1620,17 @@
 
   function tickClock() {
     const now = new Date();
+    const use24 = state.settings.clockFormat === "24";
     dom.clockText.dateTime = now.toISOString();
-    dom.clockText.textContent = new Intl.DateTimeFormat(undefined, {
+    let clockText = new Intl.DateTimeFormat(undefined, {
       hour: "numeric",
-      minute: "2-digit"
+      minute: "2-digit",
+      hour12: !use24
     }).format(now);
+    if (!use24) {
+      clockText = clockText.replace(/\s?(AM|PM|am|pm|a\.m\.|p\.m\.)\.?/i, "").trim();
+    }
+    dom.clockText.textContent = clockText;
     dom.dateText.textContent = new Intl.DateTimeFormat(undefined, {
       weekday: "long",
       month: "long",
