@@ -388,7 +388,7 @@ body[data-clock="hidden"] .time-block {
 
 .search-box {
   display: grid;
-  grid-template-columns: 46px minmax(0, 1fr) auto;
+  grid-template-columns: 46px minmax(0, 1fr);
   align-items: center;
   width: min(604px, 100%);
   min-height: 52px;
@@ -405,8 +405,7 @@ body[data-clock="hidden"] .time-block {
   color: var(--text-muted);
 }
 
-.search-box input,
-.search-box select {
+.search-box input {
   width: 100%;
   min-width: 0;
   border: 0;
@@ -422,16 +421,6 @@ body[data-clock="hidden"] .time-block {
 
 .search-box input::placeholder {
   color: color-mix(in srgb, var(--text-muted) 72%, transparent);
-}
-
-.search-box select {
-  max-width: 132px;
-  height: 36px;
-  margin-right: 8px;
-  padding: 0 8px;
-  border-left: 1px solid var(--line);
-  color: var(--text-muted);
-  outline: none;
 }
 
 .shortcut-section {
@@ -1069,16 +1058,6 @@ body[data-theme="dark"] {
 
   .search-box input {
     height: 46px;
-  }
-
-  .search-box select {
-    grid-column: 1 / -1;
-    max-width: none;
-    width: calc(100% - 28px);
-    height: 34px;
-    margin: 0 14px 10px;
-    border-top: 1px solid var(--line);
-    border-left: 0;
   }
 
   .shortcut-section {
