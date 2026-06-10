@@ -115,11 +115,7 @@
   };
 
   const searchEngines = {
-    google: "https://www.google.com/search?q=",
-    duckduckgo: "https://duckduckgo.com/?q=",
-    bing: "https://www.bing.com/search?q=",
-    youtube: "https://www.youtube.com/results?search_query=",
-    github: "https://github.com/search?q="
+    google: "https://www.google.com/search?q="
   };
 
   const namedColors = [
@@ -253,7 +249,6 @@
       "searchIcon",
       "searchForm",
       "searchInput",
-      "engineSelect",
       "sectionBar",
       "groupTabs",
       "sortButton",
@@ -316,7 +311,6 @@
       "clearBackgroundButton",
       "backgroundFileInput",
       "imageOverlayInput",
-      "defaultEngineInput",
       "topLinksInput",
       "topLinkOneLabelInput",
       "topLinkOneUrlInput",
@@ -360,7 +354,6 @@
     dom.panelScrim.addEventListener("click", closePanel);
     dom.searchForm.addEventListener("submit", handleSearchSubmit);
     dom.searchInput.addEventListener("input", renderShortcuts);
-    dom.engineSelect.addEventListener("change", handleEngineChange);
     dom.sortButton.addEventListener("click", sortVisibleShortcuts);
     dom.titleInput.addEventListener("input", syncSuggestedShortcutColor);
     dom.urlInput.addEventListener("input", syncSuggestedShortcutColor);
@@ -495,7 +488,6 @@
     settings.tileShape = ["circle", "rounded", "square"].includes(settings.tileShape) ? settings.tileShape : defaultState.settings.tileShape;
     settings.layout = ["center", "top"].includes(settings.layout) ? settings.layout : defaultState.settings.layout;
     settings.theme = ["system", "light", "dark"].includes(settings.theme) ? settings.theme : defaultState.settings.theme;
-    settings.defaultEngine = searchEngines[settings.defaultEngine] ? settings.defaultEngine : defaultState.settings.defaultEngine;
     settings.showLabels = settings.showLabels !== false;
     settings.showClock = Boolean(settings.showClock);
     settings.clockFormat = settings.clockFormat === "24" ? "24" : "12";
@@ -610,7 +602,6 @@
       root.style.setProperty("--bg-image", "none");
     }
 
-    dom.engineSelect.value = settings.defaultEngine;
     dom.timeBlock.hidden = !settings.showClock;
     dom.clockFormatRow.hidden = !settings.showClock;
     dom.topLinks.hidden = !settings.showTopLinks;
@@ -637,7 +628,6 @@
     dom.backgroundInput.value = settings.background;
     syncBackgroundImageInput();
     dom.imageOverlayInput.checked = settings.imageOverlay;
-    dom.defaultEngineInput.value = settings.defaultEngine;
     dom.topLinksInput.checked = settings.showTopLinks;
     dom.topLinkOneLabelInput.value = settings.topLinks[0].label;
     dom.topLinkOneUrlInput.value = settings.topLinks[0].url;
@@ -1441,7 +1431,6 @@
     state.settings.background = safeColor(dom.backgroundInput.value, defaultState.settings.background);
     state.settings.backgroundImage = getBackgroundImageFromControls(target);
     state.settings.imageOverlay = dom.imageOverlayInput.checked;
-    state.settings.defaultEngine = dom.defaultEngineInput.value;
     state.settings.showTopLinks = dom.topLinksInput.checked;
     state.settings.topLinks = normalizeTopLinks([
       { label: dom.topLinkOneLabelInput.value, url: dom.topLinkOneUrlInput.value },
@@ -1457,16 +1446,6 @@
       syncBackgroundImageInput();
     }
 
-    if (target.id === "defaultEngineInput") {
-      dom.engineSelect.value = state.settings.defaultEngine;
-    }
-
-    await saveState();
-  }
-
-  async function handleEngineChange() {
-    state.settings.defaultEngine = dom.engineSelect.value;
-    dom.defaultEngineInput.value = state.settings.defaultEngine;
     await saveState();
   }
 
@@ -1484,7 +1463,7 @@
       return;
     }
 
-    const url = isProbablyUrl(query) ? normalizeUrl(query) : `${searchEngines[dom.engineSelect.value]}${encodeURIComponent(query)}`;
+    const url = isProbablyUrl(query) ? normalizeUrl(query) : `${searchEngines.google}${encodeURIComponent(query)}`;
     if (url) {
       openUrl(url, "same");
     }
