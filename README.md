@@ -35,7 +35,7 @@ A Manifest V3 Chrome extension that replaces the New Tab page with a highly cust
 3. Click **Load unpacked**.
 4. Select this folder:
 
-   `C:\Users\Sabbir\Desktop\ShortcutX`
+   `\ShortcutX`
 
 Open a new tab after loading it.
 
